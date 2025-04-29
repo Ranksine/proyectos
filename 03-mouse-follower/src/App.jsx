@@ -1,34 +1,50 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react"
 
-function App() {
-  const [count, setCount] = useState(0)
+function App(){
+  const [enabled, setEnabled] = useState(false)
+  const [position, setPosition] = useState({x:0, y:0})
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+  // Pointer move
+  useEffect(()=>{
+    const handleMove = (event) => {
+      const {clientX, clientY} = event
+      setPosition({ x: clientX, y: clientY })
+    }
+
+    if (enabled) {
+      window.addEventListener('pointermove', handleMove)
+    }
+
+    return () => {
+      window.removeEventListener("pointermove", handleMove)
+    } // Este metodo se ejecuta cuando se destruye el componente y cuando se renderiza el componente
+  }),[enabled]
+
+  // Cambiar className de body
+  useEffect(() => {
+    document.body.classList.toggle('no-cursor', enabled)
+    return ()=>{ // El return en el useEffect se llama cleanup method
+      document.body.classList.remove('no-cursor')
+    }
+  }), [enabled]
+
+  return(
+    <main>
+    <div style={{
+      position:'absolute',
+      backgroundColor: '#09f',
+      borderRadius:'50%',
+      opacity: 0.8,
+      pointerEvents:"none",
+      left: -20,
+      top: -20,
+      width: 40,
+      height: 40,
+      transform: `translate(${position.x}px,${position.y}px)`
+    }}/>
+      <h3>Proyecto 3</h3>
+      <button onClick={()=>{setEnabled(!enabled)}}>{enabled?'Desactivar':'Activar'} seguir puntero</button>  
+    </main>
   )
 }
 
